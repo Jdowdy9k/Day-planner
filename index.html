@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Day Planner</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+</head>
+
+<body>
+
+    <header class="jumbotron">
+        <h1 class="display-3">Work Day Scheduler</h1>
+        <p class="lead">A simple calendar app for scheduling your work day</p>
+        <p id="Today" class="lead"></p>
+    </header>
+    <div id="display"></div>
+
+
+    <script type="text/javascript"></script>
+    <script>
+
+
+
+        $(document).ready(function () {
+            $("#Today").text(moment().format("dddd, MMMM Do"));
+            for (let i = 9; i < 18; i++) {
+
+                var row = $(`<div data-time=${i} id='${i}' class="row">`);
+                var hourCol = $('<div class="col-sm-2"> <p class="hour">' + AMtoPM(i) + '</p>');
+                var descCol = $(`<div class="col-sm-8 past"><textarea id=text${i} class="description" placeholder="Add your event here..."></textarea>`);
+                var buttCol = $(`<div class="col-sm-2"><button class="saveBtn" id=${i}><i class="fas fa-save"></i>Save Task</button>`)
+
+                $("#display").append(row)
+                $(row).append(hourCol);
+                $(row).append(descCol);
+                $(row).append(buttCol);
+
+                getLocalStorage(i);
+            }
+
+
+            function getLocalStorage(key) {
+                let value = localStorage.getItem(key);
+                if (value) {
+                    $(`#text${key}`).text(value);
+                }
+            }
+            function AMtoPM(hours) {
+                var ampm = hours >= 12 ? 'pm' : 'am';
+                hours = hours % 12;
+                hours = hours ? hours : 12;
+                return hours + ampm;
+            }
+            AMtoPM();
+
+            function colorChange() {
+                var currentTime = new Date().getHours();
+                for (var i = 9; i < 18; i++) {
+                    if ($(`#${i}`).data("time") == currentTime) {
+                        $(`#text${i}`).addClass("present");
+                    } else if (currentTime < $(`#${i}`).data("time")) {
+                        $(`#text${i}`).addClass("future");
+                    }
+                }
+            }
+
+            setInterval(function () {
+                colorChange();
+            }, 1000);
+
+            var saveBtn = $('.saveBtn');
+            saveBtn.on('click', function () {
+                var eventId = $(this).attr('id');
+                var eventText = $(this).parent().siblings().children('.description').val();
+                localStorage.setItem(eventId, eventText);
+            });
+        });
+    </script>
+
+
+
+
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+</body>
+
+</html>
